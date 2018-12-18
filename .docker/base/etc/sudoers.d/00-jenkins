@@ -1,0 +1,2 @@
+jenkins ALL=(ALL) NOPASSWD: /usr/local/bin/dockerd
+jenkins ALL=(ALL) NOPASSWD: /usr/local/bin/docker
