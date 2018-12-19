@@ -4,6 +4,14 @@ USER root
 ENV JENKINS_MASTER http://localhost:8080
 ENV JENKINS_SLAVE_NAME dind-node
 ENV JENKINS_SLAVE_SECRET ""
+ENV DOCKER_CHANNEL stable
+ENV DOCKER_VERSION 18.09.0
+# TODO ENV DOCKER_SHA256
+# https://github.com/docker/docker-ce/blob/5b073ee2cf564edee5adca05eee574142f7627bb/components/packaging/static/hash_files !!
+# (no SHA file artifacts on download.docker.com yet as of 2017-06-07 though)
+
+# https://github.com/docker/docker/tree/master/hack/dind
+ENV DIND_COMMIT 52379fa76dee07ca038624d639d9e14f4fb719ff
 
 # https://github.com/docker/docker/blob/master/project/PACKAGERS.md#runtime-dependencies
 RUN apk add --no-cache \
@@ -34,12 +42,6 @@ RUN apk add --no-cache \
 # - docker run --rm debian:stretch grep '^hosts:' /etc/nsswitch.conf
 RUN [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf
 
-ENV DOCKER_CHANNEL stable
-ENV DOCKER_VERSION 18.09.0
-# TODO ENV DOCKER_SHA256
-# https://github.com/docker/docker-ce/blob/5b073ee2cf564edee5adca05eee574142f7627bb/components/packaging/static/hash_files !!
-# (no SHA file artifacts on download.docker.com yet as of 2017-06-07 though)
-
 RUN set -eux; \
 	\
 # this "case" statement is generated via "update.sh"
@@ -67,20 +69,13 @@ RUN set -eux; \
 	\
 	dockerd --version; \
 	docker --version; \
-  pip install docker-compose
-
-# set up subuid/subgid so that "--userns-remap=default" works out-of-the-box
-RUN set -x \
+  pip install docker-compose awscli \
+  # set up subuid/subgid so that "--userns-remap=default" works out-of-the-box
 	&& addgroup -S dockremap \
 	&& adduser -S -G dockremap dockremap \
 	&& echo 'dockremap:165536:65536' >> /etc/subuid \
-	&& echo 'dockremap:165536:65536' >> /etc/subgid
-
-# https://github.com/docker/docker/tree/master/hack/dind
-ENV DIND_COMMIT 52379fa76dee07ca038624d639d9e14f4fb719ff
-
-RUN set -eux; \
-	wget -O /usr/local/bin/dind "https://raw.githubusercontent.com/docker/docker/${DIND_COMMIT}/hack/dind"; \
+	&& echo 'dockremap:165536:65536' >> /etc/subgid \
+  && wget -O /usr/local/bin/dind "https://raw.githubusercontent.com/docker/docker/${DIND_COMMIT}/hack/dind"; \
 	chmod +x /usr/local/bin/dind
 
 ADD .docker/base/ /
