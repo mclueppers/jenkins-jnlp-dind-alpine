@@ -4,6 +4,7 @@ USER root
 ENV JENKINS_MASTER http://localhost:8080
 ENV JENKINS_SLAVE_NAME dind-node
 ENV JENKINS_SLAVE_SECRET ""
+ENV JNLP_POSTGRESQL_VER="42.2.5"
 ENV DOCKER_CHANNEL stable
 ENV DOCKER_VERSION 18.09.0
 # TODO ENV DOCKER_SHA256
@@ -17,6 +18,7 @@ ENV DIND_COMMIT 52379fa76dee07ca038624d639d9e14f4fb719ff
 RUN apk add --no-cache \
     btrfs-progs \
 		ca-certificates \
+    curl \
 		e2fsprogs \
 		e2fsprogs-extra \
     iproute2 \
@@ -29,6 +31,7 @@ RUN apk add --no-cache \
 # pigz: https://github.com/moby/moby/pull/35697 (faster gzip implementation)
 		pigz \
 	; \
+  curl -o /usr/local/lib/postgresql.jar -sS "https://jdbc.postgresql.org/download/postgresql-${JNLP_POSTGRESQL_VER}.jar"; \
 # only install zfs if it's available for the current architecture
 # https://git.alpinelinux.org/cgit/aports/tree/main/zfs/APKBUILD?h=3.6-stable#n9 ("all !armhf !ppc64le" as of 2017-11-01)
 # "apk info XYZ" exits with a zero exit code but no output when the package exists but not for this arch
