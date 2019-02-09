@@ -7,6 +7,7 @@ ENV JENKINS_SLAVE_SECRET ""
 ENV JNLP_POSTGRESQL_VER="42.2.5"
 ENV DOCKER_CHANNEL stable
 ENV DOCKER_VERSION 18.09.0
+ENV CLAIR_SCANNER_VERSION 8
 # TODO ENV DOCKER_SHA256
 # https://github.com/docker/docker-ce/blob/5b073ee2cf564edee5adca05eee574142f7627bb/components/packaging/static/hash_files !!
 # (no SHA file artifacts on download.docker.com yet as of 2017-06-07 though)
@@ -57,6 +58,12 @@ RUN set -eux; \
 		s390x) dockerArch='s390x' ;; \
 		*) echo >&2 "error: unsupported architecture ($apkArch)"; exit 1 ;;\
 	esac; \
+  \
+	if ! wget -O /usr/local/bin/clair-scanner "https://github.com/arminc/clair-scanner/releases/download/v${CLAIR_SCANNER_VERSION}/clair-scanner_linux_amd64"; then \
+		echo >&2 "error: failed to download 'clair-scanner_linux_amd64 ${CLAIR_SCANNER_VERSION}"; \
+		exit 1; \
+	fi; \
+  chmod +x /usr/local/bin/clair-scanner; \
 	\
 	if ! wget -O docker.tgz "https://download.docker.com/linux/static/${DOCKER_CHANNEL}/${dockerArch}/docker-${DOCKER_VERSION}.tgz"; then \
 		echo >&2 "error: failed to download 'docker-${DOCKER_VERSION}' from '${DOCKER_CHANNEL}' for '${dockerArch}'"; \
