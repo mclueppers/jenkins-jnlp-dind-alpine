@@ -6,7 +6,7 @@ ENV JENKINS_SLAVE_NAME dind-node
 ENV JENKINS_SLAVE_SECRET ""
 ENV JNLP_POSTGRESQL_VER="42.2.5"
 ENV DOCKER_CHANNEL stable
-ENV DOCKER_VERSION 18.09.0
+ENV DOCKER_VERSION 19.03.2
 ENV CLAIR_SCANNER_VERSION 8
 # TODO ENV DOCKER_SHA256
 # https://github.com/docker/docker-ce/blob/5b073ee2cf564edee5adca05eee574142f7627bb/components/packaging/static/hash_files !!
@@ -18,17 +18,22 @@ ENV DIND_COMMIT 52379fa76dee07ca038624d639d9e14f4fb719ff
 # https://github.com/docker/docker/blob/master/project/PACKAGERS.md#runtime-dependencies
 RUN apk add --no-cache \
     btrfs-progs \
-		ca-certificates \
+    ca-certificates \
     curl \
-		e2fsprogs \
-		e2fsprogs-extra \
+    e2fsprogs \
+    e2fsprogs-extra \
+    gcc \
     iproute2 \
-		iptables \
+    iptables \
+    libc-dev \
+    libffi-dev \
     make \
+    openssl-dev \
     py-pip \
+    python-dev \
     sudo \
-		xfsprogs \
-		xz \
+    xfsprogs \
+    xz \
 # pigz: https://github.com/moby/moby/pull/35697 (faster gzip implementation)
 		pigz \
 	; \
