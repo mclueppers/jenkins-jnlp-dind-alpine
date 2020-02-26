@@ -84,7 +84,7 @@ RUN set -eux; \
 	\
 	dockerd --version; \
 	docker --version; \
-  pip install docker-compose awscli \
+  pip install awscli; pip install docker-compose \
   # set up subuid/subgid so that "--userns-remap=default" works out-of-the-box
 	&& addgroup -S dockremap \
 	&& adduser -S -G dockremap dockremap \
