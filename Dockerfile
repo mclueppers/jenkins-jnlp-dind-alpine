@@ -4,9 +4,9 @@ USER root
 ENV JENKINS_MASTER http://localhost:8080
 ENV JENKINS_SLAVE_NAME dind-node
 ENV JENKINS_SLAVE_SECRET ""
-ENV JNLP_POSTGRESQL_VER="42.2.5"
+ENV JNLP_POSTGRESQL_VER="42.2.10"
 ENV DOCKER_CHANNEL stable
-ENV DOCKER_VERSION 19.03.2
+ENV DOCKER_VERSION 19.03.5
 ENV CLAIR_SCANNER_VERSION 8
 # TODO ENV DOCKER_SHA256
 # https://github.com/docker/docker-ce/blob/5b073ee2cf564edee5adca05eee574142f7627bb/components/packaging/static/hash_files !!
@@ -91,7 +91,9 @@ RUN set -eux; \
 	&& echo 'dockremap:165536:65536' >> /etc/subuid \
 	&& echo 'dockremap:165536:65536' >> /etc/subgid \
   && wget -O /usr/local/bin/dind "https://raw.githubusercontent.com/docker/docker/${DIND_COMMIT}/hack/dind"; \
-	chmod +x /usr/local/bin/dind
+	chmod +x /usr/local/bin/dind \
+  # Fix /home/jenkins/.ssh folder
+  && mkdir -p /home/jenkins/.ssh && rm -rf /home/jenkins/.ssh/* && chown jenkins.jenkins /home/jenkins/.ssh -R
 
 ADD .docker/base/ /
 
