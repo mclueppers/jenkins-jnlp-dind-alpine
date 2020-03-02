@@ -95,8 +95,8 @@ RUN set -eux; \
   	# Fix /home/jenkins/.ssh folder
   	&& mkdir -p /home/jenkins/.ssh \
 	&& rm -rf /home/jenkins/.ssh/* \
-	&& chown jenkins.jenkins /home/jenkins/.ssh -R \
-	&& ssh-keyscan -H github.com  >> ~/.ssh/known_hosts
+	&& ssh-keyscan -H github.com  >> /home/jenkins/.ssh/known_hosts \
+	&& chown jenkins.jenkins /home/jenkins/.ssh -R 
 
 ADD .docker/base/ /
 
