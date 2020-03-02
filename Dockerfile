@@ -7,7 +7,7 @@ ENV JENKINS_SLAVE_SECRET ""
 ENV JNLP_POSTGRESQL_VER="42.2.10"
 ENV DOCKER_CHANNEL stable
 ENV DOCKER_VERSION 19.03.5
-ENV CLAIR_SCANNER_VERSION 8
+ENV CLAIR_SCANNER_VERSION 12
 # TODO ENV DOCKER_SHA256
 # https://github.com/docker/docker-ce/blob/5b073ee2cf564edee5adca05eee574142f7627bb/components/packaging/static/hash_files !!
 # (no SHA file artifacts on download.docker.com yet as of 2017-06-07 though)
@@ -63,12 +63,12 @@ RUN set -eux; \
 		s390x) dockerArch='s390x' ;; \
 		*) echo >&2 "error: unsupported architecture ($apkArch)"; exit 1 ;;\
 	esac; \
-  \
+  	\
 	if ! wget -O /usr/local/bin/clair-scanner "https://github.com/arminc/clair-scanner/releases/download/v${CLAIR_SCANNER_VERSION}/clair-scanner_linux_amd64"; then \
 		echo >&2 "error: failed to download 'clair-scanner_linux_amd64 ${CLAIR_SCANNER_VERSION}"; \
 		exit 1; \
 	fi; \
-  chmod +x /usr/local/bin/clair-scanner; \
+  	chmod +x /usr/local/bin/clair-scanner; \
 	\
 	if ! wget -O docker.tgz "https://download.docker.com/linux/static/${DOCKER_CHANNEL}/${dockerArch}/docker-${DOCKER_VERSION}.tgz"; then \
 		echo >&2 "error: failed to download 'docker-${DOCKER_VERSION}' from '${DOCKER_CHANNEL}' for '${dockerArch}'"; \
@@ -84,16 +84,19 @@ RUN set -eux; \
 	\
 	dockerd --version; \
 	docker --version; \
-  pip install awscli; pip install docker-compose \
-  # set up subuid/subgid so that "--userns-remap=default" works out-of-the-box
+ 	pip install awscli; pip install docker-compose \
+	# set up subuid/subgid so that "--userns-remap=default" works out-of-the-box
 	&& addgroup -S dockremap \
 	&& adduser -S -G dockremap dockremap \
 	&& echo 'dockremap:165536:65536' >> /etc/subuid \
 	&& echo 'dockremap:165536:65536' >> /etc/subgid \
-  && wget -O /usr/local/bin/dind "https://raw.githubusercontent.com/docker/docker/${DIND_COMMIT}/hack/dind"; \
+  	&& wget -O /usr/local/bin/dind "https://raw.githubusercontent.com/docker/docker/${DIND_COMMIT}/hack/dind"; \
 	chmod +x /usr/local/bin/dind \
-  # Fix /home/jenkins/.ssh folder
-  && mkdir -p /home/jenkins/.ssh && rm -rf /home/jenkins/.ssh/* && chown jenkins.jenkins /home/jenkins/.ssh -R
+  	# Fix /home/jenkins/.ssh folder
+  	&& mkdir -p /home/jenkins/.ssh \
+	&& rm -rf /home/jenkins/.ssh/* \
+	&& chown jenkins.jenkins /home/jenkins/.ssh -R \
+	&& ssh-keyscan -H github.com  >> ~/.ssh/known_hosts
 
 ADD .docker/base/ /
 
