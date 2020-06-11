@@ -22,7 +22,9 @@ RUN apk add --no-cache \
     curl \
     e2fsprogs \
     e2fsprogs-extra \
+    gawk \
     gcc \
+    grep \
     iproute2 \
     iptables \
     libc-dev \
