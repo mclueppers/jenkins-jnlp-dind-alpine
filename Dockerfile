@@ -27,6 +27,7 @@ RUN apk add --no-cache \
     grep \
     iproute2 \
     iptables \
+	jq \
     libc-dev \
     libffi-dev \
     make \
@@ -86,7 +87,7 @@ RUN set -eux; \
 	\
 	dockerd --version; \
 	docker --version; \
- 	pip install awscli; pip install docker-compose \
+ 	pip install awscli; pip install docker-compose; pip install detect-secrets \
 	# set up subuid/subgid so that "--userns-remap=default" works out-of-the-box
 	&& addgroup -S dockremap \
 	&& adduser -S -G dockremap dockremap \
