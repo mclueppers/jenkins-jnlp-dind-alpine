@@ -22,33 +22,33 @@ RUN apk add --no-cache \
     curl \
     e2fsprogs \
     e2fsprogs-extra \
-	file \
+    file \
     gawk \
     gcc \
     grep \
-	gzip \
+    gzip \
     iproute2 \
     iptables \
-	jq \
+    jq \
     libc-dev \
     libffi-dev \
     make \
     openssl-dev \
-    py-pip \
-    python-dev \
+    py3-pip \
+    python3-dev \
     sudo \
     xfsprogs \
     xz \
 # pigz: https://github.com/moby/moby/pull/35697 (faster gzip implementation)
-		pigz \
-	; \
-  curl -o /usr/local/lib/postgresql.jar -sS "https://jdbc.postgresql.org/download/postgresql-${JNLP_POSTGRESQL_VER}.jar"; \
+    pigz \
+    ; \
+    curl -o /usr/local/lib/postgresql.jar -sS "https://jdbc.postgresql.org/download/postgresql-${JNLP_POSTGRESQL_VER}.jar"; \
 # only install zfs if it's available for the current architecture
 # https://git.alpinelinux.org/cgit/aports/tree/main/zfs/APKBUILD?h=3.6-stable#n9 ("all !armhf !ppc64le" as of 2017-11-01)
 # "apk info XYZ" exits with a zero exit code but no output when the package exists but not for this arch
-	if zfs="$(apk info --no-cache --quiet zfs)" && [ -n "$zfs" ]; then \
-		apk add --no-cache zfs; \
-	fi
+    if zfs="$(apk info --no-cache --quiet zfs)" && [ -n "$zfs" ]; then \
+        apk add --no-cache zfs; \
+    fi
 
 # set up nsswitch.conf for Go's "netgo" implementation (which Docker explicitly uses)
 # - https://github.com/docker/docker-ce/blob/v17.09.0-ce/components/engine/hack/make.sh#L149
@@ -57,51 +57,51 @@ RUN apk add --no-cache \
 RUN [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf
 
 RUN set -eux; \
-	\
+    \
 # this "case" statement is generated via "update.sh"
-	apkArch="$(apk --print-arch)"; \
-	case "$apkArch" in \
-		x86_64) dockerArch='x86_64' ;; \
-		armhf) dockerArch='armel' ;; \
-		aarch64) dockerArch='aarch64' ;; \
-		ppc64le) dockerArch='ppc64le' ;; \
-		s390x) dockerArch='s390x' ;; \
-		*) echo >&2 "error: unsupported architecture ($apkArch)"; exit 1 ;;\
-	esac; \
-  	\
-	if ! wget -O /usr/local/bin/clair-scanner "https://github.com/arminc/clair-scanner/releases/download/v${CLAIR_SCANNER_VERSION}/clair-scanner_linux_amd64"; then \
-		echo >&2 "error: failed to download 'clair-scanner_linux_amd64 ${CLAIR_SCANNER_VERSION}"; \
-		exit 1; \
-	fi; \
-  	chmod +x /usr/local/bin/clair-scanner; \
-	\
-	if ! wget -O docker.tgz "https://download.docker.com/linux/static/${DOCKER_CHANNEL}/${dockerArch}/docker-${DOCKER_VERSION}.tgz"; then \
-		echo >&2 "error: failed to download 'docker-${DOCKER_VERSION}' from '${DOCKER_CHANNEL}' for '${dockerArch}'"; \
-		exit 1; \
-	fi; \
-	\
-	tar --extract \
-		--file docker.tgz \
-		--strip-components 1 \
-		--directory /usr/local/bin/ \
-	; \
-	rm docker.tgz; \
-	\
-	dockerd --version; \
-	docker --version; \
- 	pip install awscli; pip install docker-compose; pip install detect-secrets \
-	# set up subuid/subgid so that "--userns-remap=default" works out-of-the-box
-	&& addgroup -S dockremap \
-	&& adduser -S -G dockremap dockremap \
-	&& echo 'dockremap:165536:65536' >> /etc/subuid \
-	&& echo 'dockremap:165536:65536' >> /etc/subgid \
-  	&& wget -O /usr/local/bin/dind "https://raw.githubusercontent.com/docker/docker/${DIND_COMMIT}/hack/dind"; \
-	chmod +x /usr/local/bin/dind \
-  	# Fix /home/jenkins/.ssh folder
-  	&& mkdir -p /home/jenkins/.ssh \
-	&& rm -rf /home/jenkins/.ssh/* \
-	&& ssh-keyscan -H github.com  >> /home/jenkins/.ssh/known_hosts \
-	&& chown jenkins.jenkins /home/jenkins/.ssh -R 
+    apkArch="$(apk --print-arch)"; \
+    case "$apkArch" in \
+        x86_64) dockerArch='x86_64' ;; \
+        armhf) dockerArch='armel' ;; \
+        aarch64) dockerArch='aarch64' ;; \
+        ppc64le) dockerArch='ppc64le' ;; \
+        s390x) dockerArch='s390x' ;; \
+        *) echo >&2 "error: unsupported architecture ($apkArch)"; exit 1 ;;\
+    esac; \
+      \
+    if ! wget -O /usr/local/bin/clair-scanner "https://github.com/arminc/clair-scanner/releases/download/v${CLAIR_SCANNER_VERSION}/clair-scanner_linux_amd64"; then \
+        echo >&2 "error: failed to download 'clair-scanner_linux_amd64 ${CLAIR_SCANNER_VERSION}"; \
+        exit 1; \
+    fi; \
+      chmod +x /usr/local/bin/clair-scanner; \
+    \
+    if ! wget -O docker.tgz "https://download.docker.com/linux/static/${DOCKER_CHANNEL}/${dockerArch}/docker-${DOCKER_VERSION}.tgz"; then \
+        echo >&2 "error: failed to download 'docker-${DOCKER_VERSION}' from '${DOCKER_CHANNEL}' for '${dockerArch}'"; \
+        exit 1; \
+    fi; \
+    \
+    tar --extract \
+        --file docker.tgz \
+        --strip-components 1 \
+        --directory /usr/local/bin/ \
+    ; \
+    rm docker.tgz; \
+    \
+    dockerd --version; \
+    docker --version; \
+    pip3 install awscli; pip3 install docker-compose; pip3 install detect-secrets \
+    # set up subuid/subgid so that "--userns-remap=default" works out-of-the-box
+    && addgroup -S dockremap \
+    && adduser -S -G dockremap dockremap \
+    && echo 'dockremap:165536:65536' >> /etc/subuid \
+    && echo 'dockremap:165536:65536' >> /etc/subgid \
+    && wget -O /usr/local/bin/dind "https://raw.githubusercontent.com/docker/docker/${DIND_COMMIT}/hack/dind"; \
+    chmod +x /usr/local/bin/dind \
+    # Fix /home/jenkins/.ssh folder
+    && mkdir -p /home/jenkins/.ssh \
+    && rm -rf /home/jenkins/.ssh/* \
+    && ssh-keyscan -H github.com  >> /home/jenkins/.ssh/known_hosts \
+    && chown jenkins.jenkins /home/jenkins/.ssh -R 
 
 ADD .docker/base/ /
 
